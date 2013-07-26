@@ -34,7 +34,7 @@ module Rbprolog
       end
     end
 
-    def bind(predicate, &block)
+    def scope(predicate, &block)
       @stacks ||= []
       @stacks.push([])
 

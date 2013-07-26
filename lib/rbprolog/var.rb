@@ -6,7 +6,9 @@ module Rbprolog
       @sym = sym
     end
 
-    def to_s; @sym.to_s; end
+    def to_s
+      @sym.to_s
+    end
 
     def ==(other)
       true

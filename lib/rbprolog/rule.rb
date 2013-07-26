@@ -4,21 +4,20 @@ module Rbprolog
   class Rule
     attr_accessor :args, :sym
 
-    def initialize(logic, sym, *args, predicates)
-      @logic = logic
+    def initialize(sym, *args, predicates)
       @sym = sym
       @args = args
       @predicates = [predicates].flatten
     end
 
-    def each_deduce(*args, tabs, id)
+    def each_deduce(rules, *args, tabs, id)
       print "#{tabs}#{id.join('.')} #{@sym}(#{@args.map(&:to_s).join(', ')}).deduce(#{args.map(&:to_s).join(', ')})"
 
       context = Context.new
-      context.bind(self) do
+      context.scope(self) do
         if self.match!(context, args)
           puts " => #{@sym}(#{@args.map {|arg| context.deduce(arg).to_s}.join(', ')})" #{context.to_s} #{context.binds.inspect}"
-          deduce_predicates(context, *@predicates, tabs, id) do
+          deduce_predicates(context, rules, *@predicates, tabs, id) do
             yield context.binds
           end
         else
@@ -27,21 +26,21 @@ module Rbprolog
       end
     end
 
-    def deduce_predicates(context, *predicates, tabs, id, &block)
+    def deduce_predicates(context, rules, *predicates, tabs, id, &block)
       if predicates.empty?
         yield
       else
         predicate = predicates.shift
         if Deduction === predicate
-          predicate.each_deduce(context, @logic.rules, tabs + "\t", id + [@predicates.size - predicates.size - 1]) do |hash|
-            deduce_predicates(context, *predicates, tabs, id, &block)
+          predicate.each_deduce(context, rules, tabs + "\t", id + [@predicates.size - predicates.size - 1]) do |hash|
+            deduce_predicates(context, rules, *predicates, tabs, id, &block)
           end
         else
           @logic.send(:define_singleton_method, :const_missing) do |sym|
             context.binds[sym]
           end
 
-          predicate.call && deduce_predicates(context, *predicates, tabs, id, &block)
+          predicate.call && deduce_predicates(context, rules, *predicates, tabs, id, &block)
         end
 
       end

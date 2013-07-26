@@ -18,8 +18,9 @@ Or install it yourself as:
 
 ## Usage
 
-1. Write a class to include Rbprolog, and describe the facts and rules
+* Include Rbprolog and describe the facts and rules
 
+```ruby
 class FriendLogic
   include Rbprolog
 
@@ -34,12 +35,15 @@ class FriendLogic
   friends 'p1', W, :if => likes?(W, 's2')
   friends X, Y, :if => [likes?(X, Z), likes?(Y, Z)]
 end
+```
 
-2. Instance the class to question
+* Instance the class to question
 
+```ruby
 l = FriendLogic.new
 l.likes?('p1', 's1') #=> true
 l.friends?('p1', 'p4') #=> true
+```
 
 ## Contributing
 

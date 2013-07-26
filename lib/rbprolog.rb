@@ -17,6 +17,10 @@ module Rbprolog
     instance_eval(&block) if block
   end
 
+  def rules
+    self.class.rules + (@rules || [])
+  end
+
   module ClassMethods
     def keywords(*syms)
       raise if syms.any? {|sym| sym.to_s.end_with? '?'}
@@ -41,20 +45,21 @@ module Rbprolog
 
     def rule(sym, *args, options)
       self.rules ||= []
-      self.rules << Rule.new(self, sym, *args, options[:if])
+      self.rules << Rule.new(sym, *args, options[:if])
 
       unless method_defined?(sym)
         #FIXME only allow fact for now
         define_method(sym) do |*args|
-          self.class.rules << Rule.new(self, sym, *args, [])
+          @rules ||= []
+          @rules << Rule.new(sym, *args, [])
         end
 
-        define_method(sym.to_s + '!') do |*args|
+        define_method("#{sym}!") do |*args|
           Deduction.new(self, sym, *args)
         end
 
-        define_method(sym.to_s + '?') do |*args|
-          self.send(sym.to_s + '!', *args).any? {|hash| true}
+        define_method("#{sym}?") do |*args|
+          self.send("#{sym}!", *args).any? {|hash| true}
         end
       end
     end
