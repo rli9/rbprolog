@@ -1,6 +1,6 @@
 # Rbprolog
 
-TODO: Write a gem description
+The gem simulates logic processing functionality of prolog. It uses DSL style and only provides limited features now.
 
 ## Installation
 
@@ -18,7 +18,28 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+1. Write a class to include Rbprolog, and describe the facts and rules
+
+class FriendLogic
+  include Rbprolog
+
+  keywords :likes, :friends
+
+  likes 'p1', 's1'
+  likes 'p1', 's2'
+  likes 'p2', 's2'
+  likes 'p3', 's1'
+  likes 'p4', X
+
+  friends 'p1', W, :if => likes?(W, 's2')
+  friends X, Y, :if => [likes?(X, Z), likes?(Y, Z)]
+end
+
+2. Instance the class to question
+
+l = FriendLogic.new
+l.likes?('p1', 's1') #=> true
+l.friends?('p1', 'p4') #=> true
 
 ## Contributing
 

@@ -6,10 +6,10 @@ require 'rbprolog/version'
 Gem::Specification.new do |spec|
   spec.name          = "rbprolog"
   spec.version       = Rbprolog::VERSION
-  spec.authors       = ["TODO: Write your name"]
-  spec.email         = ["TODO: Write your email address"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.authors       = ["ruijia.li"]
+  spec.email         = ["ruijia.li@gmail.com"]
+  spec.description   = %q{A ruby implementation to simulate prolog partially}
+  spec.summary       = %q{A prolog DSL in ruby to do AI logic analysis}
   spec.homepage      = ""
   spec.license       = "MIT"
 
