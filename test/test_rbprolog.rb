@@ -37,6 +37,26 @@ class TestRbprolog < Test::Unit::TestCase
     assert_equal ['p1', 'p2', 'p3', 'p4'], l.friends!('p1', Rbprolog::Var.new(:W)).map {|hash| hash[:W]}.uniq.sort
   end
 
+  def test_logic_instance_should_allow_new_fact
+    l = FriendLogic.new do
+      likes 'p5', 's1'
+    end
+
+    assert_equal true, l.likes?('p5', 's1')
+    assert_equal false, l.likes?('p5', 's2')
+    assert_equal true, l.friends?('p5', 'p3')
+    assert_equal false, l.friends?('p5', 'p2')
+  end
+
+  def test_logic_instance_should_allow_new_rule
+    l = FriendLogic.new %q{
+      friends 'p2', X, :if => likes?(X, 's1')
+    }
+
+    assert_equal true, l.friends?('p2', 'p3')
+    assert_equal true, l.friends?('p2', 'p1')
+  end
+
   def test_logic_instances_should_be_independent
     l1 = FriendLogic.new do
       likes 'p5', 's1'

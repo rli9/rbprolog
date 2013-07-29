@@ -10,13 +10,13 @@ module Rbprolog
       @deductions = [deductions].flatten
     end
 
-    def each_deduce(rules, *args, id)
-      print "#{"\t" * id.size}#{id.join('.')} #{@sym}(#{@args.map(&:to_s).join(', ')}).deduce(#{args.map(&:to_s).join(', ')})"
+    def each_match(rules, *args, id)
+      print "#{"\t" * id.size}#{id.join('.')} #{@sym}(#{@args.join(', ')}).deduce(#{args.join(', ')})"
 
       context = Context.new
-      context.scope(self) do
+      context.scope(self) do |scoped_args|
         if self.match!(context, args)
-          puts " => #{@sym}(#{@args.map {|arg| context.deduce(arg).to_s}.join(', ')})" #{context.to_s} #{context.binds.inspect}"
+          puts " => #{@sym}(#{@args.map {|arg| context.deduce(arg)}.join(', ')})"
           deduce_deductions(context, rules, *@deductions, id) do
             yield context.binds
           end
@@ -41,17 +41,17 @@ module Rbprolog
       if deductions.empty?
         yield
       else
-        predicate = deductions.shift
-        if Deduction === predicate
-          predicate.each_deduce(context, rules, id + [@deductions.size - deductions.size - 1]) do |hash|
+        deduction = deductions.shift
+        if Deduction === deduction
+          deduction.each_deduce(context, rules, id + [@deductions.size - deductions.size - 1]) do |hash|
             deduce_deductions(context, rules, *deductions, id, &block)
           end
         else
           @logic.send(:define_singleton_method, :const_missing) do |sym|
-            context.binds[sym]
+            context[sym]
           end
 
-          predicate.call && deduce_deductions(context, rules, *deductions, id, &block)
+          deduction.call && deduce_deductions(context, rules, *deductions, id, &block)
         end
 
       end

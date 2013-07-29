@@ -7,18 +7,28 @@ require_relative 'rbprolog/var'
 module Rbprolog
   def self.included(mod)
     class << mod
-      attr_accessor :rules, :syms
-
       include ClassMethods
+      attr_accessor :rules, :syms
     end
   end
 
-  def initialize(&block)
-    instance_eval(&block) if block
+  def initialize(string = nil, &block)
+    if string || block
+      class << self
+        include Rbprolog
+      end
+
+      singletonclass = class << self; self; end
+
+      singletonclass.keywords(*self.class.syms)
+      singletonclass.class_eval(string) if string
+      singletonclass.class_eval(&block) if block
+    end
   end
 
   def rules
-    self.class.rules + (@rules || [])
+    singletonclass = class << self; self; end
+    self.class.rules + (singletonclass.rules || [])
   end
 
   module ClassMethods
@@ -30,6 +40,7 @@ module Rbprolog
     end
 
     def const_missing(sym)
+      puts sym
       Var.new(sym)
     end
 
@@ -48,12 +59,6 @@ module Rbprolog
       self.rules << Rule.new(sym, *args, options[:if])
 
       unless method_defined?(sym)
-        #FIXME only allow fact for now
-        define_method(sym) do |*args|
-          @rules ||= []
-          @rules << Rule.new(sym, *args, [])
-        end
-
         define_method("#{sym}!") do |*args|
           Deduction.new(self, sym, *args)
         end

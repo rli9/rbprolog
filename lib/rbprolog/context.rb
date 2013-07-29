@@ -2,6 +2,11 @@ module Rbprolog
   class Context
     attr_accessor :binds
 
+    def initialize
+      @scopes = []
+      @binds = {}
+    end
+
     def match?(v1, v2)
       v1 = deduce(v1)
       Var === v1 || Var === v2 || v1 == v2
@@ -16,10 +21,18 @@ module Rbprolog
       end
     end
 
+    def [](sym)
+      @binds[sym]
+    end
+
+    def []=(sym, value)
+      @binds[sym] = value
+    end
+
     def deduce(v)
       if Var === v
         unless @binds[v.sym]
-          @stacks.last << v.sym
+          @scopes.last << v.sym
           @binds[v.sym] = Var.new(v.sym)
         end
 
@@ -30,16 +43,13 @@ module Rbprolog
     end
 
     def scope(predicate, &block)
-      @stacks ||= []
-      @stacks.push([])
-
-      @binds ||= {}
+      @scopes.push([])
 
       mirror = @binds.clone
 
-      result = yield
+      result = yield predicate.args.map {|arg| self.deduce(arg)}
 
-      @stacks.pop.each {|bind| @binds.delete bind}
+      @scopes.pop.each {|bind| @binds.delete bind}
       @binds.merge!(mirror)
 
       result

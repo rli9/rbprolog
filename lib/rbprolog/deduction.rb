@@ -7,7 +7,6 @@ module Rbprolog
     def initialize(logic, sym, *args)
       @logic = logic
       @sym = sym
-
       @args = args
     end
 
@@ -18,18 +17,17 @@ module Rbprolog
     end
 
     def each_deduce(context, rules, id)
-      print "#{"\t" * id.size}#{id.join('.')} #{@sym}?(#{@args.map(&:to_s).join(', ')})"
+      print "#{"\t" * id.size}#{id.join('.')} #{@sym}?(#{@args.join(', ')})"
 
-      rules.select {|rule| rule.sym == @sym}.each_with_index do |rule, i|
-        context.scope(self) do
-          puts " => #{@sym}?(#{@args.map {|arg| context.deduce(arg).to_s}.join(', ')})" if i == 0
+      rules.select {|rule| rule.sym == @sym}.each_with_index do |rule, rule_index|
+        context.scope(self) do |scoped_args|
+          puts " => #{@sym}?(#{scoped_args.join(', ')})" if rule_index == 0
 
-          rule.each_deduce(rules, *@args.map {|arg| context.deduce(arg)}, id + [i]) do |hash|
+          rule.each_match(rules, *scoped_args, id + [rule_index]) do |hash|
             context.scope(self) do
               rule.args.each_with_index do |rule_arg, rule_arg_index|
-                deduced_arg = context.deduce(@args[rule_arg_index])
-                if Var === deduced_arg
-                  context.binds[deduced_arg.sym] = Var === rule_arg ? hash[rule_arg.sym] : rule_arg
+                if Var === scoped_args[rule_arg_index]
+                  context[scoped_args[rule_arg_index].sym] = Var === rule_arg ? hash[rule_arg.sym] : rule_arg
                 end
               end
 
