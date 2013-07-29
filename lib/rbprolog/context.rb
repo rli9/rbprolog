@@ -9,12 +9,7 @@ module Rbprolog
 
     def match!(v1, v2)
       if match?(v1, v2)
-        if Var === v1 && !(Var === v2)
-          @binds[v1.sym] = v2
-        # elsif Var === v2 && !(Var === v1)
-          # @binds[v2.sym] = v1
-        end
-
+        @binds[v1.sym] = v2 if Var === v1 && !(Var === v2)
         true
       else
         false
