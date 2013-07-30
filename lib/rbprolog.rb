@@ -14,21 +14,16 @@ module Rbprolog
 
   def initialize(string = nil, &block)
     if string || block
-      class << self
-        include Rbprolog
-      end
+      self.extend(Rbprolog)
 
-      singletonclass = class << self; self; end
-
-      singletonclass.keywords(*self.class.syms)
-      singletonclass.class_eval(string) if string
-      singletonclass.class_eval(&block) if block
+      self.singleton_class.keywords(*self.class.syms)
+      self.singleton_class.class_eval(string) if string
+      self.singleton_class.class_eval(&block) if block
     end
   end
 
   def rules
-    singletonclass = class << self; self; end
-    self.class.rules + (singletonclass.rules || [])
+    self.class.rules + (self.singleton_class.rules || [])
   end
 
   module ClassMethods
@@ -40,7 +35,6 @@ module Rbprolog
     end
 
     def const_missing(sym)
-      puts sym
       Var.new(sym)
     end
 
@@ -48,7 +42,7 @@ module Rbprolog
       if self.syms.include? sym
         Hash === args.last ? rule(sym, *args) : rule(sym, *args, :if => [])
       elsif self.syms.include? sym.to_s.chomp('?').to_sym
-        Deduction.new(self, sym.to_s.chomp('?').to_sym, *args)
+        Deduction.new(sym.to_s.chomp('?').to_sym, *args)
       else
         super
       end
@@ -60,7 +54,18 @@ module Rbprolog
 
       unless method_defined?(sym)
         define_method("#{sym}!") do |*args|
-          Deduction.new(self, sym, *args)
+          deduction = Deduction.new(sym, *args)
+
+          deduction.extend(Enumerable)
+
+          rules = self.rules
+          deduction.define_singleton_method(:each) do |&block|
+            each_deduce(Context.new, rules, []) do |hash|
+              block.call hash
+            end
+          end
+
+          deduction
         end
 
         define_method("#{sym}?") do |*args|

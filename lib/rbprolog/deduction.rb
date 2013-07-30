@@ -1,19 +1,10 @@
 module Rbprolog
   class Deduction
-    include Enumerable
-
     attr_accessor :args, :sym
 
-    def initialize(logic, sym, *args)
-      @logic = logic
+    def initialize(sym, *args)
       @sym = sym
       @args = args
-    end
-
-    def each
-      each_deduce(Context.new, @logic.rules, []) do |hash|
-        yield hash
-      end
     end
 
     def each_deduce(context, rules, id)
