@@ -1,8 +1,8 @@
-require_relative "rbprolog/version"
-require_relative 'rbprolog/context'
-require_relative 'rbprolog/rule'
-require_relative 'rbprolog/deduction'
-require_relative 'rbprolog/var'
+require "rbprolog/version"
+require 'rbprolog/context'
+require 'rbprolog/rule'
+require 'rbprolog/deduction'
+require 'rbprolog/var'
 
 module Rbprolog
   def self.included(mod)
