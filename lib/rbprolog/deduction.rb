@@ -14,7 +14,8 @@ module Rbprolog
         context.scope(self) do |scoped_args|
           puts " => #{@sym}?(#{scoped_args.join(', ')})" if rule_index == 0
 
-          rule.each_match(rules, *scoped_args, id + [rule_index]) do |hash|
+          # rules.reject is to avoid endless loop caused by self reference
+          rule.each_match(rules.reject {|item| item == rule}, *scoped_args, id + [rule_index]) do |hash|
             context.scope(self) do
               rule.args.each_with_index do |rule_arg, rule_arg_index|
                 if Var === scoped_args[rule_arg_index]

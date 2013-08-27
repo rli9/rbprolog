@@ -1,5 +1,4 @@
-require 'simplecov'
-SimpleCov.start
+require 'test_helper'
 require 'test/unit'
 require 'rbprolog'
 
