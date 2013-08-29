@@ -7,7 +7,7 @@ module Rbprolog
     def initialize(sym, *args, deductions)
       @sym = sym
       @args = args
-      @deductions = [deductions].flatten
+      @deductions = [deductions].flatten.map {|deduction| Deduction === deduction ? deduction : Evaluation.new(deduction.call)}
     end
 
     def each_match(rules, *args, id)
@@ -42,18 +42,9 @@ module Rbprolog
         yield
       else
         deduction = deductions.shift
-        if Deduction === deduction
-          deduction.each_deduce(context, rules, id + [@deductions.size - deductions.size - 1]) do |hash|
-            deduce_deductions(context, rules, *deductions, id, &block)
-          end
-        else
-          @logic.send(:define_singleton_method, :const_missing) do |sym|
-            context[sym]
-          end
-
-          deduction.call && deduce_deductions(context, rules, *deductions, id, &block)
+        deduction.each_deduce(context, rules, id + [@deductions.size - deductions.size - 1]) do |hash|
+          deduce_deductions(context, rules, *deductions, id, &block)
         end
-
       end
     end
   end
