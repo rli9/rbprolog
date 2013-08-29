@@ -2,6 +2,7 @@ require "rbprolog/version"
 require 'rbprolog/context'
 require 'rbprolog/rule'
 require 'rbprolog/deduction'
+require 'rbprolog/evaluation'
 require 'rbprolog/var'
 
 =begin rdoc

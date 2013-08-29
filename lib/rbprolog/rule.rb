@@ -1,5 +1,4 @@
 module Rbprolog
-
   #when fail at one predicate, the output values need be reset, and remove from the parent rule/s context
   class Rule
     attr_accessor :args, :sym
