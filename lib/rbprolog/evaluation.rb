@@ -9,17 +9,18 @@ module Rbprolog
     end
 
     def each_deduce(context, rules, id)
-      print "#{"\t" * id.size}#{id.join('.')} ?(#{@args.join(', ')})"
+      print "#{"\t" * id.size}#{id.join('.')} #{@expression}?)"
 
       context.scope(self) do |scoped_args|
-        puts " => ?(#{scoped_args.join(', ')})"
-
         kclass = Class.new
         kclass.send(:define_singleton_method, :const_missing) do |sym|
-          context.deduce(sym)
+          context.deduce(Var.new(sym))
         end
 
-        yield context.binds if kclass.class_eval(@expression)
+        evaluation = kclass.class_eval(@expression)
+        puts " => #{evaluation}"
+
+        yield context.binds if evaluation
       end
     end
   end
