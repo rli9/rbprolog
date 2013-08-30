@@ -8,11 +8,11 @@ module Rbprolog
     end
 
     def each_deduce(context, rules, id)
-      print "#{"\t" * id.size}#{id.join('.')} #{@sym}?(#{@args.join(', ')})"
+      #print "#{"\t" * id.size}#{id.join('.')} #{@sym}?(#{@args.join(', ')})"
 
       rules.select {|rule| rule.sym == @sym}.each_with_index do |rule, rule_index|
         context.scope(self) do |scoped_args|
-          puts " => #{@sym}?(#{scoped_args.join(', ')})" if rule_index == 0
+          #puts " => #{@sym}?(#{scoped_args.join(', ')})" if rule_index == 0
 
           # rules.reject is to avoid endless loop caused by self reference
           rule.each_match(rules.reject {|item| item == rule}, *scoped_args, id + [rule_index]) do |hash|

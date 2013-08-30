@@ -10,17 +10,17 @@ module Rbprolog
     end
 
     def each_match(rules, *args, id)
-      print "#{"\t" * id.size}#{id.join('.')} #{@sym}(#{@args.join(', ')}).deduce(#{args.join(', ')})"
+      #print "#{"\t" * id.size}#{id.join('.')} #{@sym}(#{@args.join(', ')}).deduce(#{args.join(', ')})"
 
       context = Context.new
       context.scope(self) do |scoped_args|
         if self.match!(context, args)
-          puts " => #{@sym}(#{@args.map {|arg| context.deduce(arg)}.join(', ')})"
+          #puts " => #{@sym}(#{@args.map {|arg| context.deduce(arg)}.join(', ')})"
           deduce_deductions(context, rules, *@deductions, id) do
             yield context.binds
           end
         else
-          print "\n"
+          #print "\n"
         end
       end
     end

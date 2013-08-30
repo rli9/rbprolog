@@ -9,7 +9,7 @@ module Rbprolog
     end
 
     def each_deduce(context, rules, id)
-      print "#{"\t" * id.size}#{id.join('.')} #{@expression}?)"
+      #print "#{"\t" * id.size}#{id.join('.')} #{@expression}?)"
 
       context.scope(self) do |scoped_args|
         kclass = Class.new
@@ -18,7 +18,7 @@ module Rbprolog
         end
 
         evaluation = kclass.class_eval(@expression)
-        puts " => #{evaluation}"
+        #puts " => #{evaluation}"
 
         yield context.binds if evaluation
       end
